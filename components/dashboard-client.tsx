@@ -11,6 +11,7 @@ import { ProfileEditForm } from "@/components/profile-edit-form"
 import { ChatInterface } from "@/components/chat-interface"
 import { NotificationBell } from "@/components/notification-bell"
 import { LogisticsDashboard } from "@/components/logistics-dashboard"
+import { UserAccountMenu } from "@/components/user-account-menu"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -42,7 +43,7 @@ export function DashboardClient({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -53,21 +54,35 @@ export function DashboardClient({
               </div>
               <div className="ml-4">
                 <h1 className="text-xl font-semibold text-gray-900">Contract Farming</h1>
+                <p className="text-xs text-gray-500">Dashboard</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm">
-                {unreadNotifications?.length || 0} notifications
+              <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+                <span>
+                  Welcome back, <span className="font-medium">{profile?.full_name || 'User'}</span>
+                </span>
+                {profile?.user_type && (
+                  <Badge 
+                    variant={
+                      profile.user_type === 'farmer' ? 'default' :
+                      profile.user_type === 'buyer' ? 'secondary' :
+                      'outline'
+                    }
+                    className="text-xs"
+                  >
+                    {profile.user_type.charAt(0).toUpperCase() + profile.user_type.slice(1)}
+                  </Badge>
+                )}
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Welcome, {profile?.full_name}</span>
-                <Badge variant={profile?.user_type === "farmer" ? "default" : "secondary"}>
-                  {profile?.user_type}
-                </Badge>
-              </div>
-              <Button onClick={handleSignOut} variant="outline" size="sm">
-                Sign Out
-              </Button>
+              <NotificationBell unreadCount={unreadNotifications?.length || 0} />
+              <UserAccountMenu 
+                user={user}
+                profile={profile}
+                onSignOut={handleSignOut}
+                onProfileClick={() => setActiveTab("profile")}
+                onSettingsClick={() => setActiveTab("profile")}
+              />
             </div>
           </div>
         </div>

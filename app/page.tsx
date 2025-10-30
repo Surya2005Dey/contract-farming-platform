@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { LogoutButton } from "@/components/logout-button"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -10,9 +11,8 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (user) {
-    redirect("/dashboard")
-  }
+  // Allow viewing home page even when logged in
+  // Users can manually navigate to dashboard if they want
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -25,13 +25,26 @@ export default async function HomePage() {
             </div>
             <h1 className="text-xl font-bold text-gray-900">Contract Farming</h1>
           </div>
-          <div className="space-x-4">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/sign-up">Get Started</Link>
-            </Button>
+          <div className="flex items-center space-x-4">
+            {user ? (
+              // Show dashboard link and logout if user is logged in
+              <>
+                <Button asChild>
+                  <Link href="/dashboard">Go to Dashboard</Link>
+                </Button>
+                <LogoutButton />
+              </>
+            ) : (
+              // Show login/signup if user is not logged in
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/auth/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/auth/sign-up">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -48,12 +61,27 @@ export default async function HomePage() {
             access. Build lasting partnerships that benefit everyone in the agricultural value chain.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild className="bg-green-600 hover:bg-green-700">
-              <Link href="/auth/sign-up">Start Farming Contracts</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="#features">Learn More</Link>
-            </Button>
+            {user ? (
+              // If logged in, show dashboard and profile links
+              <>
+                <Button size="lg" asChild className="bg-green-600 hover:bg-green-700">
+                  <Link href="/dashboard">Go to Dashboard</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/dashboard">View My Contracts</Link>
+                </Button>
+              </>
+            ) : (
+              // If not logged in, show signup and learn more
+              <>
+                <Button size="lg" asChild className="bg-green-600 hover:bg-green-700">
+                  <Link href="/auth/sign-up">Start Farming Contracts</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="#features">Learn More</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -100,13 +128,27 @@ export default async function HomePage() {
       {/* CTA Section */}
       <section className="py-16 px-4 bg-green-600 text-white">
         <div className="container mx-auto text-center max-w-3xl">
-          <h3 className="text-3xl font-bold mb-4">Ready to Transform Your Agricultural Business?</h3>
-          <p className="text-xl mb-8 text-green-100">
-            Join thousands of farmers and buyers who have already secured their future through contract farming.
-          </p>
-          <Button size="lg" variant="secondary" asChild>
-            <Link href="/auth/sign-up">Get Started Today</Link>
-          </Button>
+          {user ? (
+            <>
+              <h3 className="text-3xl font-bold mb-4">Welcome Back!</h3>
+              <p className="text-xl mb-8 text-green-100">
+                Ready to manage your contracts and explore new opportunities?
+              </p>
+              <Button size="lg" variant="secondary" asChild>
+                <Link href="/dashboard">Go to Dashboard</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <h3 className="text-3xl font-bold mb-4">Ready to Transform Your Agricultural Business?</h3>
+              <p className="text-xl mb-8 text-green-100">
+                Join thousands of farmers and buyers who have already secured their future through contract farming.
+              </p>
+              <Button size="lg" variant="secondary" asChild>
+                <Link href="/auth/sign-up">Get Started Today</Link>
+              </Button>
+            </>
+          )}
         </div>
       </section>
 

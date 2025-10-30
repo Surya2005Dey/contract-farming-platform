@@ -1,9 +1,9 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
+    const supabase = await createClient()
 
     // Get current user
     const {
@@ -18,10 +18,9 @@ export async function GET(request: NextRequest) {
       .from("conversations")
       .select(`
         *,
-        participant_1_profile:profiles!conversations_participant_1_fkey(full_name, user_type),
-        participant_2_profile:profiles!conversations_participant_2_fkey(full_name, user_type),
-        contract:contracts(crop_type, status),
-        messages(content, created_at, sender_id)
+        participant_1_profile:participant_1(id, full_name, user_type, company_name),
+        participant_2_profile:participant_2(id, full_name, user_type, company_name),
+        contract:contract_id(id, crop_type, status)
       `)
       .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
       .order("last_message_at", { ascending: false })
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
+    const supabase = await createClient()
     const { participant_id, contract_id } = await request.json()
 
     // Get current user

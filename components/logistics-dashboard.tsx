@@ -108,7 +108,7 @@ export function LogisticsDashboard({ contractId }: LogisticsDashboardProps) {
       delivered: "bg-green-100 text-green-800",
       cancelled: "bg-red-100 text-red-800",
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800"
   }
 
   return (

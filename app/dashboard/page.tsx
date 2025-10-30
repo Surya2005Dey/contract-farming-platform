@@ -15,25 +15,33 @@ export default async function DashboardPage() {
   }
 
   // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
 
-  const { data: ratingSummary } = await supabase.from("user_rating_summary").select("*").eq("user_id", user.id).single()
+  // Get rating summary
+  const { data: ratingSummary } = await supabase
+    .from("ratings")
+    .select("rating")
+    .eq("rated_user_id", user.id)
 
+  // Get contracts needing review
   const { data: contractsNeedingReview } = await supabase
     .from("contracts")
-    .select(`
-      *,
-      farmer:farmer_id(id, full_name),
-      buyer:buyer_id(id, full_name)
-    `)
-    .eq("status", "completed")
+    .select("*")
     .or(`farmer_id.eq.${user.id},buyer_id.eq.${user.id}`)
+    .eq("status", "pending")
+    .limit(5)
 
+  // Get unread notifications
   const { data: unreadNotifications } = await supabase
     .from("notifications")
-    .select("id")
+    .select("*")
     .eq("user_id", user.id)
-    .is("read_at", null)
+    .eq("read", false)
+    .limit(10)
 
   return (
     <DashboardClient

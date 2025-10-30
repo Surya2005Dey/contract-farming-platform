@@ -1,8 +1,8 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
   const { searchParams } = new URL(request.url)
 
   const cropType = searchParams.get("crop_type")
@@ -69,3 +69,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
